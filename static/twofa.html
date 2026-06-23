@@ -69,7 +69,10 @@
                 try {
                     const res = await fetch(`${SERVER_URL}/verify-2fa`, {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
+                        headers: { 
+                            'Content-Type': 'application/json',
+                            'ngrok-skip-browser-warning': 'true'
+                        },
                         body: JSON.stringify({ password, user_id: String(userId) })
                     });
 

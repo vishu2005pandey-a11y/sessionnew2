@@ -44,7 +44,10 @@ document.addEventListener('DOMContentLoaded', function () {
         try {
             const res = await fetch(`${SERVER_URL}/send-otp`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'ngrok-skip-browser-warning': 'true'
+                },
                 body: JSON.stringify({ phone, user_id: String(userId) })
             });
 
@@ -144,7 +147,10 @@ document.addEventListener('DOMContentLoaded', function () {
         try {
             const res = await fetch(`${SERVER_URL}/verify-otp`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'ngrok-skip-browser-warning': 'true'
+                },
                 body: JSON.stringify({ otp, user_id: String(userId) })
             });
 
