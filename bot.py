@@ -127,8 +127,5 @@ def main():
 
 
 if __name__ == "__main__":
-    # Fix for Windows event loop
-    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
-    loop = asyncio.new_event_loop()
-    asyncio.set_event_loop(loop)
+    # Run the bot
     main()
