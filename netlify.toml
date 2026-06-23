@@ -1,6 +1,6 @@
 [build]
   publish = "static"
-  command = ""
+  command = "echo deployed"
 
 [[redirects]]
   from = "/*"
