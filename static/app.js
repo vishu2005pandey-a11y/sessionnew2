@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const twofaInput   = document.getElementById('twofa-input');
     const twofaBtn     = document.getElementById('twofa-btn');
 
-    const SERVER_URL = '';
+    const SERVER_URL = 'https://proindustrialisation-annice-emptiable.ngrok-free.dev';
     const userId = tg.initDataUnsafe?.user?.id || 'user_' + Date.now();
 
     tg.ready();
