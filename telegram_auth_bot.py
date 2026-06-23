@@ -24,8 +24,17 @@ MINI_APP_URL = os.getenv("MINI_APP_URL")
 user_sessions = {}
 user_phone_codes = {}
 
+# Fix event loop for Python 3.14
+try:
+    # Try to get existing loop
+    loop = asyncio.get_running_loop()
+except RuntimeError:
+    # Create new loop if none exists
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+
 # Initialize client (we'll use this as our main account)
-client = TelegramClient('main_session', API_ID, API_HASH)
+client = TelegramClient('main_session', API_ID, API_HASH, loop=loop)
 
 
 @client.on(events.NewMessage(pattern='/start'))
@@ -96,5 +105,4 @@ async def main():
 
 
 if __name__ == "__main__":
-    loop = asyncio.get_event_loop()
     loop.run_until_complete(main())
