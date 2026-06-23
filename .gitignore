@@ -12,3 +12,7 @@ __pycache__/
 
 # Netlify
 .netlify/
+
+# Telegram Session Files (keep these private!)
+*.session
+*.session-journal
