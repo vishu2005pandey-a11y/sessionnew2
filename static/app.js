@@ -9,8 +9,9 @@ document.addEventListener('DOMContentLoaded', function () {
     const verifyBtn = document.getElementById('verify-btn');
 
     // ── Config ───────────────────────────────────────────────────────────────
-    // Change this to your server URL when deployed (e.g. https://yourapp.com)
-    const SERVER_URL = 'http://localhost:5000';
+    // TODO: Replace with your ngrok/deployed server URL
+    // e.g. 'https://abc123.ngrok-free.app'  OR  'https://yourapp.render.com'
+    const SERVER_URL = 'https://REPLACE_WITH_YOUR_SERVER_URL';
 
     let currentIndex = 0;
     let currentStep = 'phone';

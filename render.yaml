@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: telegram-otp-server
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: python server.py
+    envVars:
+      - key: API_ID
+        sync: false
+      - key: API_HASH
+        sync: false
