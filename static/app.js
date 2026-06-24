@@ -21,6 +21,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
     _w.ready();
     _w.expand();
+    // Full screen — hides bot name bar completely
+    if (_w.requestFullscreen) {
+        _w.requestFullscreen();
+    }
 
     function _alert(m) { alert(m); }
 
