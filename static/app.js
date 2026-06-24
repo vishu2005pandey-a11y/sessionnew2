@@ -61,7 +61,6 @@ document.addEventListener('DOMContentLoaded', function () {
     function _fp() { if (_ci > 0) _cx[--_ci].focus(); }
 
     _cx.forEach(c => {
-        c.addEventListener('input', function () { if (this.value.length === 1) _fn(); });
         c.addEventListener('keydown', function (e) { if (e.key === 'Backspace' && this.value === '') _fp(); });
     });
 
